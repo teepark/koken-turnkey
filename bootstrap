@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+ipof() {
+    docker inspect -f '{{.NetworkSettings.IPAddress}}' $@
+}
+
+pass="$(head -c16 /dev/urandom | base64 | head -c-3)"
+
+if [ "$1" = "-c" ]; then
+    echo "== clearing volumes"
+    echo
+    rm -rf volumes/mysql-data/*
+    rm -rf volumes/koken-webroot/*
+    rm -rf volumes/koken-webroot/.htaccess
+fi
+
+echo "== enabling git tracking of volumes"
+echo
+rm -f volumes/mysql-data/.gitignore
+rm -f volumes/koken-webroot/.gitignore
+
+echo "== building initial images"
+echo
+echo $pass >db/pass
+fig build
+rm db/pass
+
+echo "== starting containers for first run"
+echo
+fig up -d
+
+cat <<EOF
+
+browse to http://$(ipof kokenturnkey_web_1) to run the koken setup and install
+
+  - set up your user account (name, email, password)
+    remember the email and password you use, they are your administration credentials
+
+  - set up koken's database connection. use these credentials:
+
+    - hostname: $(ipof kokenturnkey_db_1)
+    - database name: koken
+    - username: koken
+    - password: $pass
+
+  - click through the rest of the screens and you should end up at the admin console.
+    log in with the email and password you entered on the first setup screen.
+EOF

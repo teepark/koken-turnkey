@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if [ -z "$(ls /var/www)" ]; then
+    mv /koken-install.php /var/www/index.php
+    chown -R www-data:www-data /var/www
+
+elif [ -n "$DB_PORT_3306_TCP_ADDR" ]; then
+    sed -ri "s/^\t\t'hostname' => '.*?',.*$/\t\t'hostname' => '$DB_PORT_3306_TCP_ADDR',/" \
+        /var/www/storage/configuration/database.php
+
+fi
+
+exec /usr/sbin/apache2 -D FOREGROUND

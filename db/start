@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ -z "$(ls -A /mysql-data)" ]; then
+    /usr/bin/mysql_install_db
+
+    (
+        sleep 2
+        mysql <<EOF
+            CREATE DATABASE koken;
+            GRANT ALL ON koken.* TO koken@'%' IDENTIFIED BY '$(cat /pass)';
+            FLUSH PRIVILEGES;
+EOF
+        killall mysqld
+        rm /pass
+    ) & /usr/sbin/mysqld
+fi
+
+exec /usr/sbin/mysqld

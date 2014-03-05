@@ -1,0 +1,17 @@
+db:
+    build: ./db
+    volumes:
+        - ./volumes/mysql-data:/mysql-data
+    command: /bin/bash /start
+
+web:
+    build: ./web
+    links:
+        - db:db
+    volumes:
+        - ./volumes/koken-webroot:/var/www
+    environment:
+        APACHE_RUN_USER: www-data
+        APACHE_RUN_GROUP: www-data
+        APACHE_LOG_DIR: /var/log/apache2
+    command: /bin/bash /start
