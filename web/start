@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ -z "$(ls /var/www)" ]; then
+if [ -z "$(ls /var/www/index.php)" ]; then
     mv /koken-install.php /var/www/index.php
     chown -R www-data:www-data /var/www
 
